@@ -19,7 +19,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json());
 
-app.use(express.static(path.join(__dirname, 'build')));
 
 
 const db = mysql.createPool({
@@ -46,8 +45,8 @@ app.get("/coinByType", (req, res) => {
     res.json(results);
   });
 });
-app.get("/coinPage", (req, res) => {
-  const id = req.query.id;
+app.get("/coinPageById/:id", (req, res) => {
+  const id = req.params.id;
   const GET_BY_TYPE = `SELECT * FROM coins WHERE id='${id}'`;
 
   db.query(GET_BY_TYPE, (err, results) => {
@@ -98,7 +97,7 @@ app.post("/login", (req, res) => {
           if (err1) res.sendStatus(500);
         });
         res.send({ newToken, login, role });
-      }
+      } else res.sendStatus(401);
     } else res.sendStatus(401);
   });
 });
@@ -210,8 +209,8 @@ app.put("/updateInfo", (req, res) => {
   });
 });
 
-app.post("/history", (req, res) => {
-  const id = req.query.id;
+app.post("/history/:id", (req, res) => {
+  const id = req.params.id;
   const { username } = req.body;
 
   const ADD_USER_HISTORY = `INSERT INTO historyview (username,coin_id) VALUES ('${username}',${id})`;
@@ -251,7 +250,7 @@ app.get("/getUserHistory", (req, res) => {
     res.json(results);
   });
 });
-
+app.use(express.static(path.join(__dirname, 'build')));
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
